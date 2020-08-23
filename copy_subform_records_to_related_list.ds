@@ -1,0 +1,30 @@
+// Zoho workflow function
+// void copy_subform_records_to_related_list(String entityId)
+
+entityId = entityId.toLong();
+
+entityRec = zoho.crm.getRecordById("MODULE_NAME", entityId);
+
+subformRecords = entityRec.get("SUBFORM_NAME");
+
+relatedRecords = zoho.crm.getRelatedRecords("RELATED_LIST_NAME", "MODULE_NAME", entityId);
+
+// Delink existing related records from entity
+existingRelatedRecordIds = "";
+for each item in relatedRecords
+{
+	existingRelatedRecordIds = existingRelatedRecordIds + item.get("id") + ",";
+}
+delinkUrl = "https://www.zohoapis.com/crm/v2/MODULE_NAME/" + entityId + "/RELATED_LIST_NAME?ids=" + existingRelatedRecordIds;
+response = invokeUrl [
+	url: delinkUrl
+	type: DELETE
+	connection: z_crm_api
+];
+
+// Add in selected records
+for each item in subformRecords
+{
+	itemId = item.get("Item").get("id").toLong();
+	update = zoho.crm.updateRelatedRecord("RELATED_LIST_NAME", ItemId, "MODULE_NAME", entityId, {"MODULE_NAME":entityId});
+}
